@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>StreamFlix</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header class="header">
+    <div class="logo">STREAMFLIX</div>
+    <ul class="nav-links">
+        <li><a th:href="@{/}">Home</a></li>
+        <li><a th:href="@{/}">Movies</a></li>
+        <li><a th:href="@{/my-list}">My List</a></li>
+    </ul>
+    <form class="search-form" th:action="@{/search}" method="get">
+        <input class="search-input" type="text" name="query" placeholder="Search movies, genres...">
+        <button class="search-button" type="submit">Search</button>
+    </form>
+</header>
+
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">FEATURED</div>
+        <h1 class="hero-title" th:text="${featured.title}">Movie Title</h1>
+        <div class="hero-meta">
+            <span th:text="${featured.year}">2024</span> &bull;
+            <span th:text="${featured.genre}">Genre</span> &bull;
+            <span th:text="${featured.duration}">120 min</span> &bull;
+            <span th:text="'★ ' + ${featured.rating}">★ 8.0</span>
+        </div>
+        <p class="hero-description" th:text="${featured.description}">Description goes here.</p>
+        <div class="hero-buttons">
+            <a class="btn btn-primary" th:href="@{/movie/{id}(id=${featured.id})}">▶ Play</a>
+            <a class="btn btn-secondary" th:href="@{/movie/{id}(id=${featured.id})}">More Info</a>
+        </div>
+    </div>
+</section>
+
+<section class="row-section">
+    <h2 class="row-title">Trending Now</h2>
+    <div class="movie-row">
+        <a class="movie-card" th:each="movie : ${trending}" th:href="@{/movie/{id}(id=${movie.id})}">
+            <div class="poster" th:classappend="${movie.image}">
+                <span th:text="${movie.title}">Title</span>
+            </div>
+            <div class="card-info">
+                <div class="card-meta" th:text="${movie.genre} + ' &bull; ' + ${movie.year}">Genre &bull; Year</div>
+            </div>
+        </a>
+    </div>
+</section>
+
+<section class="row-section">
+    <h2 class="row-title">Popular Movies</h2>
+    <div class="movie-row">
+        <a class="movie-card" th:each="movie : ${popular}" th:href="@{/movie/{id}(id=${movie.id})}">
+            <div class="poster" th:classappend="${movie.image}">
+                <span th:text="${movie.title}">Title</span>
+            </div>
+            <div class="card-info">
+                <div class="card-meta" th:text="${movie.genre} + ' &bull; ' + ${movie.year}">Genre &bull; Year</div>
+            </div>
+        </a>
+    </div>
+</section>
+
+<section class="row-section">
+    <h2 class="row-title">Action</h2>
+    <div class="movie-row">
+        <a class="movie-card" th:each="movie : ${action}" th:href="@{/movie/{id}(id=${movie.id})}">
+            <div class="poster" th:classappend="${movie.image}">
+                <span th:text="${movie.title}">Title</span>
+            </div>
+            <div class="card-info">
+                <div class="card-meta" th:text="${movie.genre} + ' &bull; ' + ${movie.year}">Genre &bull; Year</div>
+            </div>
+        </a>
+    </div>
+</section>
+
+<section class="row-section">
+    <h2 class="row-title">Sci-Fi</h2>
+    <div class="movie-row">
+        <a class="movie-card" th:each="movie : ${scifi}" th:href="@{/movie/{id}(id=${movie.id})}">
+            <div class="poster" th:classappend="${movie.image}">
+                <span th:text="${movie.title}">Title</span>
+            </div>
+            <div class="card-info">
+                <div class="card-meta" th:text="${movie.genre} + ' &bull; ' + ${movie.year}">Genre &bull; Year</div>
+            </div>
+        </a>
+    </div>
+</section>
+
+<section class="row-section">
+    <h2 class="row-title">Drama</h2>
+    <div class="movie-row">
+        <a class="movie-card" th:each="movie : ${drama}" th:href="@{/movie/{id}(id=${movie.id})}">
+            <div class="poster" th:classappend="${movie.image}">
+                <span th:text="${movie.title}">Title</span>
+            </div>
+            <div class="card-info">
+                <div class="card-meta" th:text="${movie.genre} + ' &bull; ' + ${movie.year}">Genre &bull; Year</div>
+            </div>
+        </a>
+    </div>
+</section>
+
+<footer class="footer">
+    StreamFlix &mdash; a demo application for learning Java, Maven, and DevOps. Not affiliated with any streaming service.
+</footer>
+
+</body>
+</html>

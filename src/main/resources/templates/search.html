@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Search - StreamFlix</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header class="header">
+    <div class="logo">STREAMFLIX</div>
+    <ul class="nav-links">
+        <li><a th:href="@{/}">Home</a></li>
+        <li><a th:href="@{/}">Movies</a></li>
+        <li><a th:href="@{/my-list}">My List</a></li>
+    </ul>
+    <form class="search-form" th:action="@{/search}" method="get">
+        <input class="search-input" type="text" name="query" th:value="${query}" placeholder="Search movies, genres...">
+        <button class="search-button" type="submit">Search</button>
+    </form>
+</header>
+
+<section class="row-section">
+    <h2 class="row-title" th:text="'Search results for: ' + ${query}">Search results</h2>
+
+    <p class="no-results" th:if="${results == null or #lists.isEmpty(results)}">
+        No movies found. Try a different title or genre.
+    </p>
+
+    <div class="movie-row" th:unless="${results == null or #lists.isEmpty(results)}">
+        <a class="movie-card" th:each="movie : ${results}" th:href="@{/movie/{id}(id=${movie.id})}">
+            <div class="poster" th:classappend="${movie.image}">
+                <span th:text="${movie.title}">Title</span>
+            </div>
+            <div class="card-info">
+                <div class="card-meta" th:text="${movie.genre} + ' &bull; ' + ${movie.year}">Genre &bull; Year</div>
+            </div>
+        </a>
+    </div>
+</section>
+
+<footer class="footer">
+    StreamFlix &mdash; a demo application for learning Java, Maven, and DevOps. Not affiliated with any streaming service.
+</footer>
+
+</body>
+</html>

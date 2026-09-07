@@ -1,0 +1,318 @@
+/* ============================================
+   StreamFlix - Dark streaming platform theme
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #141414;
+    color: #f5f5f5;
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    line-height: 1.5;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ---------- Header ---------- */
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.4));
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #e50914;
+    letter-spacing: 1px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    flex-wrap: wrap;
+}
+
+.nav-links a {
+    font-size: 0.95rem;
+    color: #e5e5e5;
+    transition: color 0.2s ease;
+}
+
+.nav-links a:hover {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.search-form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-input {
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    color: #fff;
+    min-width: 180px;
+}
+
+.search-button {
+    background-color: #e50914;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.search-button:hover {
+    background-color: #f6121d;
+}
+
+/* ---------- Hero section ---------- */
+
+.hero {
+    padding: 6rem 3rem 4rem;
+    background: linear-gradient(to right, rgba(20, 20, 20, 0.95) 35%, rgba(20, 20, 20, 0.3)),
+                linear-gradient(135deg, #3a1c1c, #1c1c3a, #10231c);
+    background-size: cover;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-content {
+    max-width: 600px;
+}
+
+.hero-badge {
+    color: #46d369;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.hero-meta {
+    color: #d2d2d2;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    color: #e5e5e5;
+    margin-bottom: 1.5rem;
+    max-width: 500px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.7rem 1.6rem;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.btn-primary:hover {
+    background-color: #d6d6d6;
+}
+
+.btn-secondary {
+    background-color: rgba(109, 109, 110, 0.7);
+    color: #ffffff;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(109, 109, 110, 0.5);
+}
+
+/* ---------- Movie rows ---------- */
+
+.row-section {
+    padding: 1.5rem 2rem;
+}
+
+.row-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.movie-row {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.movie-card {
+    flex: 0 0 auto;
+    width: 200px;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #222;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.movie-card:hover {
+    transform: scale(1.06);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+    z-index: 5;
+}
+
+.poster {
+    height: 280px;
+    display: flex;
+    align-items: flex-end;
+    padding: 0.8rem;
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+    color: #fff;
+}
+
+/* Simple CSS-generated "posters" - no external image files needed */
+.poster-scifi {
+    background: linear-gradient(160deg, #1c1c3a 0%, #0d47a1 45%, #00bcd4 100%);
+}
+
+.poster-action {
+    background: linear-gradient(160deg, #3a1c1c 0%, #b71c1c 45%, #ff7043 100%);
+}
+
+.poster-drama {
+    background: linear-gradient(160deg, #241c3a 0%, #4a148c 45%, #ab47bc 100%);
+}
+
+.card-info {
+    padding: 0.6rem 0.8rem 0.9rem;
+}
+
+.card-meta {
+    font-size: 0.8rem;
+    color: #aaaaaa;
+}
+
+.no-results {
+    color: #bbbbbb;
+    font-style: italic;
+    padding: 1rem 0;
+}
+
+/* ---------- Movie details page ---------- */
+
+.details-page {
+    padding: 3rem 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.details-poster {
+    height: 320px;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-end;
+    padding: 1.5rem;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.details-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    color: #cccccc;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.details-description {
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+    color: #e5e5e5;
+}
+
+.details-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+    text-align: center;
+    padding: 2rem;
+    color: #777;
+    font-size: 0.85rem;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 700px) {
+    .hero {
+        padding: 5rem 1.5rem 2.5rem;
+    }
+
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .row-section {
+        padding: 1rem;
+    }
+
+    .movie-card {
+        width: 140px;
+    }
+
+    .poster {
+        height: 200px;
+    }
+
+    .header {
+        padding: 1rem;
+    }
+}

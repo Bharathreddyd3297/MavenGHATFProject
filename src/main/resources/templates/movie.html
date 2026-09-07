@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${movie.title} + ' - StreamFlix'">Movie - StreamFlix</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header class="header">
+    <div class="logo">STREAMFLIX</div>
+    <ul class="nav-links">
+        <li><a th:href="@{/}">Home</a></li>
+        <li><a th:href="@{/}">Movies</a></li>
+        <li><a th:href="@{/my-list}">My List</a></li>
+    </ul>
+    <form class="search-form" th:action="@{/search}" method="get">
+        <input class="search-input" type="text" name="query" placeholder="Search movies, genres...">
+        <button class="search-button" type="submit">Search</button>
+    </form>
+</header>
+
+<main class="details-page">
+    <a th:href="@{/}" class="btn btn-secondary" style="margin-bottom: 1.5rem; display: inline-block;">&larr; Back</a>
+
+    <div class="details-poster" th:classappend="${movie.image}">
+        <span th:text="${movie.title}">Title</span>
+    </div>
+
+    <div class="details-meta">
+        <span th:text="${movie.genre}">Genre</span>
+        <span th:text="${movie.year}">Year</span>
+        <span th:text="${movie.duration}">Duration</span>
+        <span th:text="'★ ' + ${movie.rating}">Rating</span>
+    </div>
+
+    <p class="details-description" th:text="${movie.description}">Description</p>
+
+    <div class="details-actions">
+        <form th:action="@{/movie/{id}/add-to-my-list(id=${movie.id})}" method="post">
+            <button type="submit" class="btn btn-primary">+ Add to My List</button>
+        </form>
+        <a th:href="@{/}" class="btn btn-secondary">Back to Home</a>
+    </div>
+</main>
+
+<footer class="footer">
+    StreamFlix &mdash; a demo application for learning Java, Maven, and DevOps. Not affiliated with any streaming service.
+</footer>
+
+</body>
+</html>
