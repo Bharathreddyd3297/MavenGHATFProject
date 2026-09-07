@@ -513,7 +513,9 @@ This is a **Phase 1 learning project**, intentionally simplified:
 - [x] "My List" add/view flow works.
 - [x] `.gitignore` created (excludes `target/` and other generated files).
 - [x] README.md documents the entire setup for a fresh Windows laptop.
-- [ ] Git repository initialized (intentionally **not** done yet — see Section 30).
+- [x] Git repository initialized and pushed to GitHub
+      (https://github.com/Bharathreddyd3297/MavenGHATFProject) — see [Phase 2](#phase-2--terraform-infrastructure)
+      below for what came after.
 
 ## 30. Future DevOps Phases
 
@@ -522,16 +524,16 @@ This project is only Phase 1 of a larger pipeline. Coming next:
 ```text
 Phase 1 (this document)          Phase 2 and beyond
 ------------------------         --------------------------------
-Java Application                 Push the Maven application to GitHub
+Java Application                 Push the Maven application to GitHub  (done)
 Maven                                    |
 Run Locally                              v
-Build & Test                     GitHub Actions (automated build & test)
+Build & Test                     Terraform (infrastructure as code)     (done - see below)
+                                          |
+                                          v
+                                  GitHub Actions (automated build & test & deploy)
                                           |
                                           v
                                   AWS Authentication
-                                          |
-                                          v
-                                  Terraform (infrastructure as code)
                                           |
                                           v
                                   AWS Elastic Beanstalk
@@ -540,6 +542,232 @@ Build & Test                     GitHub Actions (automated build & test)
                                   Deploy Java Application
 ```
 
-None of the later phases (Git, GitHub, GitHub Actions, AWS, Terraform, Docker, Elastic
-Beanstalk) are configured yet. This project remains, for now, a clean, local, self-contained
-Maven application.
+Git/GitHub and Terraform infrastructure are now done (see the Phase 2 section below). GitHub
+Actions, AWS authentication in CI, and the actual JAR deployment onto the provisioned Elastic
+Beanstalk environment are still not configured — those are the next phase.
+
+---
+
+## Phase 2 — Terraform Infrastructure
+
+Phase 1 built the StreamFlix application itself and proved it runs locally. This phase uses
+**Terraform** to provision the minimum AWS infrastructure needed to eventually host StreamFlix on
+**AWS Elastic Beanstalk**. Terraform's job here is infrastructure only — it does **not** build or
+deploy our JAR. That separation matters:
+
+```text
+Terraform                          Later: GitHub Actions
+   |                                   |
+   v                                   v
+Provisions AWS infrastructure      Builds the JAR (mvn clean package)
+(Elastic Beanstalk application,    and deploys it onto the
+environment, IAM roles)            infrastructure Terraform created
+```
+
+Because no application version is deployed by Terraform, Elastic Beanstalk automatically runs
+its own built-in "Sample Application" on the environment for now. Seeing that sample app respond
+successfully is how we confirm the infrastructure itself is healthy, before GitHub Actions ever
+enters the picture.
+
+### Terraform Project Structure
+
+```text
+terraform/
+├── main.tf                    <- Terraform + AWS provider configuration
+├── resource.tf                <- All AWS resources (IAM, Elastic Beanstalk, outputs)
+├── variable.tf                <- Input variable definitions
+├── terraform.tfvars           <- Actual values used locally (NOT committed to Git)
+├── terraform.tfvars.example   <- Safe example values (committed to Git)
+└── .terraform.lock.hcl        <- Records the exact AWS provider version (committed to Git)
+```
+
+Terraform automatically loads **every** `.tf` file in a directory and merges them into one
+configuration — splitting things into `main.tf` / `resource.tf` / `variable.tf` is purely for
+human readability, not a Terraform requirement.
+
+### What Gets Created
+
+- An `aws_elastic_beanstalk_application` named `streamflix`.
+- An `aws_elastic_beanstalk_environment` named `streamflix-env`, running on the current AWS
+  Elastic Beanstalk **Java SE, Amazon Linux 2023, Corretto 21** platform (looked up dynamically —
+  see below — not hardcoded to a specific platform build number).
+- A single `t3.micro` EC2 instance (`EnvironmentType = SingleInstance`) — no load balancer, no
+  manually-created Auto Scaling group, no custom VPC. Elastic Beanstalk uses the AWS account's
+  **default VPC and default subnets** automatically.
+- Two small IAM roles Elastic Beanstalk needs to operate:
+  - An **EC2 instance role/profile** (`streamflix-eb-ec2-role` /
+    `streamflix-eb-ec2-profile`), attached to the `AWSElasticBeanstalkWebTier` AWS-managed
+    policy, so the EC2 instance in the environment can talk to the other AWS services it needs
+    without ever having AWS access keys stored on it:
+    ```text
+    Elastic Beanstalk
+            v
+    EC2 instances
+            v
+    IAM instance profile
+    ```
+  - A **service role** (`streamflix-eb-service-role`), attached to the
+    `AWSElasticBeanstalkEnhancedHealth` and `AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy`
+    AWS-managed policies, which Elastic Beanstalk itself assumes to monitor and manage the
+    environment.
+
+Nothing else — no RDS, no ECS/EKS, no CloudFront, no Route 53, no WAF, no custom VPC. Keeping the
+infrastructure this small is intentional for a training project.
+
+### Choosing the Java Platform Dynamically
+
+Instead of hardcoding a solution stack string like `"64bit Amazon Linux 2023 v4.12.7 running
+Corretto 21"` (AWS periodically retires old platform builds), `resource.tf` uses a data source to
+ask AWS for the current one at plan/apply time:
+
+```hcl
+data "aws_elastic_beanstalk_solution_stack" "java21" {
+  most_recent = true
+  name_regex  = "^64bit Amazon Linux 2023 .* running Corretto 21$"
+}
+```
+
+The regex specifically matches the **Java SE** platform (for deploying a plain executable JAR
+with `java -jar`), not one of the "... running Tomcat NN Corretto 21" platforms (those are for
+deploying `.war` files into a bundled Tomcat, which isn't how StreamFlix runs).
+
+### Terraform Files Explained
+
+| File                       | Purpose                                                     |
+| -------------------------- | ------------------------------------------------------------ |
+| `main.tf`                  | Terraform/provider configuration                             |
+| `resource.tf`              | AWS resources (IAM, Elastic Beanstalk application/environment, outputs) |
+| `variable.tf`              | Input variable definitions                                   |
+| `terraform.tfvars`         | Actual variable values used locally                           |
+| `terraform.tfvars.example` | Safe example values for Git                                   |
+| `.gitignore`               | Prevents secrets/state/generated files from being committed  |
+
+How the pieces connect:
+
+```text
+variable.tf
+     |
+     v
+Defines variables (aws_region, application_name, environment_name, instance_type)
+
+terraform.tfvars
+     |
+     v
+Provides actual values for those variables
+
+resource.tf
+     |
+     v
+Uses the variables to configure real AWS resources
+
+main.tf
+     |
+     v
+Configures Terraform itself and the AWS provider (which region to talk to)
+```
+
+### AWS Credentials
+
+Terraform does **not** read AWS credentials from any `.tf` or `.tfvars` file in this project —
+there is no `access_key` / `secret_key` anywhere in this configuration, on purpose. Instead, the
+AWS provider uses the exact same credential chain as the AWS CLI: environment variables, an AWS
+CLI profile (`~/.aws/credentials`), or an assumed role — whatever is already configured locally.
+
+Before running any Terraform command, confirm which AWS identity will be used:
+
+```powershell
+aws sts get-caller-identity
+```
+
+This prints your AWS account ID and IAM user/role ARN (never your secret key) so you can confirm
+Terraform is about to act against the correct AWS account.
+
+### Terraform State
+
+Running `terraform init` creates a local `.terraform/` folder (downloaded provider plugins) and,
+after `plan`/`apply`, a `terraform.tfstate` file. State is how Terraform remembers the
+relationship between:
+
+```text
+Terraform configuration
+        |
+        v
+Real AWS infrastructure
+```
+
+Both `.terraform/` and `*.tfstate*` are git-ignored — state files can contain sensitive resource
+details and are specific to whoever/wherever last applied the configuration, so they don't belong
+in Git. This project intentionally uses **local** state for now; a remote backend (e.g. S3 +
+DynamoDB locking) is a future improvement, not needed for this learning phase.
+
+### Terraform Commands
+
+| Command             | Purpose                                                                 |
+| -------------------- | ------------------------------------------------------------------------ |
+| `terraform version`  | Shows the installed Terraform CLI version.                              |
+| `terraform init`     | Downloads the AWS provider and initializes the working directory.        |
+| `terraform fmt`      | Rewrites `.tf` files into Terraform's standard formatting style.        |
+| `terraform validate` | Checks configuration syntax and internal consistency (no AWS calls).     |
+| `terraform plan`     | Shows exactly what Terraform would create/change/destroy, without doing it. |
+| `terraform apply`    | Prompts for confirmation, then actually creates/changes the AWS resources. |
+
+`terraform init` flow:
+
+```text
+terraform init
+     |
+     v
+Downloads the AWS provider plugin
+     |
+     v
+Initializes this directory as a Terraform working directory
+```
+
+`terraform plan` flow:
+
+```text
+terraform plan
+     |
+     v
+Reads the .tf configuration files
+     |
+     v
+Reads current AWS state (what already exists)
+     |
+     v
+Calculates the difference
+     |
+     v
+Shows what would be created / changed / destroyed
+```
+
+Run these in order from the `terraform/` folder:
+
+```powershell
+terraform fmt
+terraform init
+terraform validate
+terraform plan
+```
+
+Only after reviewing the plan output and confirming it looks correct should you run:
+
+```powershell
+terraform apply
+```
+
+Terraform will print the same plan again and ask you to type `yes` before making any changes.
+**Do not** run `terraform apply -auto-approve` for this first deployment — reviewing and
+approving the plan yourself is the whole point of the exercise.
+
+### Current Status
+
+- `terraform fmt` — no formatting changes needed.
+- `terraform init` — succeeded (AWS provider `hashicorp/aws` v5.100.0 installed).
+- `terraform validate` — configuration is valid.
+- `terraform plan` — succeeded: **8 to add, 0 to change, 0 to destroy** (the Elastic Beanstalk
+  application, the Elastic Beanstalk environment, 2 IAM roles, 1 IAM instance profile, and 3 IAM
+  policy attachments).
+- `terraform apply` has **not** been run yet — the plan is ready for review and, once approved,
+  `terraform apply`.
+- No resources have been created in AWS by this phase. No `terraform destroy` has been run.

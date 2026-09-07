@@ -1,0 +1,7 @@
+# Copy this file to terraform.tfvars and adjust values as needed.
+# terraform.tfvars is git-ignored because it can hold environment-specific
+# values; this .example file is safe to commit.
+
+aws_region       = "ap-south-1"
+application_name = "streamflix"
+environment_name = "streamflix-env"
