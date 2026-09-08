@@ -131,6 +131,13 @@ resource "aws_elastic_beanstalk_environment" "streamflix" {
     value     = var.instance_type
   }
 
+  # Application listens on port 8080
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "PORT"
+    value     = "8080"
+  }
+
   # No VPC/subnet settings here - Elastic Beanstalk automatically uses the
   # AWS account's default VPC and default subnets for the region when none
   # are specified, which is exactly what this training project wants.
