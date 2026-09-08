@@ -50,11 +50,20 @@ jobs:
       # --------------------------------------------------------
       # Upload JAR as GitHub Actions artifact
       # --------------------------------------------------------
+      - name: Prepare Elastic Beanstalk deployment package
+        run: |
+            mkdir eb-deployment
+            cp target/streamflix-1.0.0.jar eb-deployment/
+            echo "web: java -jar streamflix-1.0.0.jar" > eb-deployment/Procfile
+
+            echo "Deployment package:"
+            ls -la eb-deployment/
+
       - name: Upload application artifact
         uses: actions/upload-artifact@v4
         with:
-          name: streamflix-jar
-          path: target/streamflix-1.0.0.jar
+            name: streamflix-deployment
+            path: eb-deployment/
 
 
   # ============================================================
@@ -149,8 +158,19 @@ jobs:
       - name: Download application artifact
         uses: actions/download-artifact@v4
         with:
-            name: streamflix-jar
+            name: streamflix-deployment
             path: deployment
+
+      - name: Verify deployment package
+        run: |
+            echo "Files:"
+            ls -la deployment/
+
+            echo "Procfile:"
+            cat deployment/Procfile
+
+            echo "JAR:"
+            ls -lh deployment/streamflix-1.0.0.jar
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
