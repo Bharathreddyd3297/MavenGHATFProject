@@ -56,7 +56,7 @@ jobs:
             cp target/streamflix-1.0.0.jar eb-deployment/
             echo "web: java -jar streamflix-1.0.0.jar" > eb-deployment/Procfile
 
-            echo "Deployment package:"
+            echo "Deployment files:"
             ls -la eb-deployment/
 
       - name: Upload application artifact
@@ -161,16 +161,25 @@ jobs:
             name: streamflix-deployment
             path: deployment
 
-      - name: Verify deployment package
+      - name: Verify deployment files
         run: |
-            echo "Files:"
+            echo "Deployment files:"
             ls -la deployment/
 
             echo "Procfile:"
             cat deployment/Procfile
 
-            echo "JAR:"
-            ls -lh deployment/streamflix-1.0.0.jar
+            test -f deployment/streamflix-1.0.0.jar
+            test -f deployment/Procfile
+
+      - name: Create deployment ZIP
+        run: |
+            cd deployment
+            zip -r ../streamflix-deployment.zip .
+            cd ..
+
+            echo "ZIP contents:"
+            unzip -l streamflix-deployment.zip
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -179,6 +188,9 @@ jobs:
             role-session-name: GitHubLink
             aws-region: ap-south-1
 
+      - name: Verify AWS authentication
+        run: aws sts get-caller-identity
+
       - name: Deploy to Elastic Beanstalk
         uses: aws-actions/aws-elasticbeanstalk-deploy@v1
         with:
@@ -186,4 +198,4 @@ jobs:
             application-name: streamflix
             environment-name: streamflix-env
             version-label: streamflix-${{ github.run_number }}
-            deployment-package: deployment/streamflix-1.0.0.jar
+            deployment-package: streamflix-deployment.zip
