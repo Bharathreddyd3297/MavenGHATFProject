@@ -1,4 +1,4 @@
-name: StreamFlix CI CD
+name: All 4 Stages
 
 on:
   workflow_dispatch:
