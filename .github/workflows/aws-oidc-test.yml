@@ -12,43 +12,70 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get OIDC token
-        id: oidc
-        uses: actions/github-script@v7
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
         with:
-          script: |
-            const token = await core.getIDToken('sts.amazonaws.com');
-            core.setOutput('token', token);
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: GitHubLink
+          aws-region: ap-south-1
 
-      - name: Decode OIDC token
-        env:
-          OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
-        run: |
-          python - <<'PY'
-          import os
-          import base64
-          import json
+      - name: Verify AWS authentication
+        run: aws sts get-caller-identity
 
-          token = os.environ["OIDC_TOKEN"]
+# name: AWS OIDC Authentication Test
 
-          header, payload, signature = token.split(".")
+# on:
+#   workflow_dispatch:
 
-          payload += "=" * (-len(payload) % 4)
+# permissions:
+#   id-token: write
+#   contents: read
 
-          decoded = base64.urlsafe_b64decode(payload)
+# jobs:
+#   aws-authentication:
+#     runs-on: ubuntu-latest
 
-          claims = json.loads(decoded)
+#     steps:
+#       - name: Get OIDC token
+#         id: oidc
+#         uses: actions/github-script@v7
+#         with:
+#           script: |
+#             const token = await core.getIDToken('sts.amazonaws.com');
+#             core.setOutput('token', token);
 
-          print(json.dumps({
-              "iss": claims.get("iss"),
-              "aud": claims.get("aud"),
-              "sub": claims.get("sub"),
-              "repository": claims.get("repository"),
-              "repository_owner": claims.get("repository_owner"),
-              "ref": claims.get("ref"),
-              "event_name": claims.get("event_name")
-          }, indent=2))
-          PY
+#       - name: Decode OIDC token
+#         env:
+#           OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
+#         run: |
+#           python - <<'PY'
+#           import os
+#           import base64
+#           import json
+
+#           token = os.environ["OIDC_TOKEN"]
+
+#           header, payload, signature = token.split(".")
+
+#           payload += "=" * (-len(payload) % 4)
+
+#           decoded = base64.urlsafe_b64decode(payload)
+
+#           claims = json.loads(decoded)
+
+#           print(json.dumps({
+#               "iss": claims.get("iss"),
+#               "aud": claims.get("aud"),
+#               "sub": claims.get("sub"),
+#               "repository": claims.get("repository"),
+#               "repository_owner": claims.get("repository_owner"),
+#               "ref": claims.get("ref"),
+#               "event_name": claims.get("event_name")
+#           }, indent=2))
+#           PY
 
 
 
