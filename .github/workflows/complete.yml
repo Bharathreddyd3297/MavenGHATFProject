@@ -47,23 +47,20 @@ jobs:
           ls -lh target/
           test -f target/streamflix-1.0.0.jar
 
-      # --------------------------------------------------------
-      # Upload JAR as GitHub Actions artifact
-      # --------------------------------------------------------
-      - name: Prepare Elastic Beanstalk deployment package
+      - name: Prepare Elastic Beanstalk package
         run: |
-            mkdir eb-deployment
-            cp target/streamflix-1.0.0.jar eb-deployment/
-            echo "web: java -jar streamflix-1.0.0.jar" > eb-deployment/Procfile
+          mkdir eb-deployment
+          cp target/streamflix-1.0.0.jar eb-deployment/
+          echo "web: java -jar streamflix-1.0.0.jar" > eb-deployment/Procfile
 
-            echo "Deployment files:"
-            ls -la eb-deployment/
+          echo "Deployment files:"
+          ls -la eb-deployment/
 
       - name: Upload application artifact
         uses: actions/upload-artifact@v4
         with:
-            name: streamflix-deployment
-            path: eb-deployment/
+          name: streamflix-deployment
+          path: eb-deployment/
 
 
   # ============================================================
@@ -76,9 +73,6 @@ jobs:
     needs: build
 
     steps:
-
-      - name: Checkout code
-        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -95,7 +89,7 @@ jobs:
   # STAGE 3 - TERRAFORM INFRASTRUCTURE
   # ============================================================
   terraform:
-    name: Provision AWS Infrastructure
+    name: Terraform Infrastructure
     runs-on: ubuntu-latest
 
     needs: aws-authentication
@@ -130,10 +124,8 @@ jobs:
         working-directory: terraform
         run: terraform validate
 
-      # --------------------------------------------------------
-      # Terraform is commented for now because infrastructure
-      # has already been created.
-      # --------------------------------------------------------
+      # Infrastructure already exists, so Plan and Apply
+      # are disabled for now.
 
       # - name: Terraform Plan
       #   working-directory: terraform
@@ -158,35 +150,35 @@ jobs:
       - name: Download application artifact
         uses: actions/download-artifact@v4
         with:
-            name: streamflix-deployment
-            path: deployment
+          name: streamflix-deployment
+          path: deployment
 
       - name: Verify deployment files
         run: |
-            echo "Deployment files:"
-            ls -la deployment/
+          echo "Deployment files:"
+          ls -la deployment/
 
-            echo "Procfile:"
-            cat deployment/Procfile
+          echo "Procfile:"
+          cat deployment/Procfile
 
-            test -f deployment/streamflix-1.0.0.jar
-            test -f deployment/Procfile
+          test -f deployment/streamflix-1.0.0.jar
+          test -f deployment/Procfile
 
       - name: Create deployment ZIP
         run: |
-            cd deployment
-            zip -r ../streamflix-deployment.zip .
-            cd ..
+          cd deployment
+          zip -r ../streamflix-deployment.zip .
+          cd ..
 
-            echo "ZIP contents:"
-            unzip -l streamflix-deployment.zip
+          echo "ZIP contents:"
+          unzip -l streamflix-deployment.zip
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
-            role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-            role-session-name: GitHubLink
-            aws-region: ap-south-1
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: GitHubLink
+          aws-region: ap-south-1
 
       - name: Verify AWS authentication
         run: aws sts get-caller-identity
@@ -194,8 +186,8 @@ jobs:
       - name: Deploy to Elastic Beanstalk
         uses: aws-actions/aws-elasticbeanstalk-deploy@v1
         with:
-            aws-region: ap-south-1
-            application-name: streamflix
-            environment-name: streamflix-env
-            version-label: streamflix-${{ github.run_number }}
-            deployment-package: streamflix-deployment.zip
+          aws-region: ap-south-1
+          application-name: streamflix
+          environment-name: streamflix-env
+          version-label: streamflix-${{ github.run_number }}
+          deployment-package-path: streamflix-deployment.zip
