@@ -103,6 +103,14 @@ jobs:
       - name: Terraform Init
         working-directory: terraform
         run: terraform init
+      - name: Check Terraform files
+        working-directory: terraform
+        run: |
+            echo "Terraform directory:"
+            ls -la
+
+            echo "terraform.tfvars contents:"
+            cat terraform.tfvars
 
       - name: Terraform Format Check
         working-directory: terraform
