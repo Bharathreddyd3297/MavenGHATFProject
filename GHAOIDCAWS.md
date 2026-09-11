@@ -8,7 +8,7 @@
 | GitHub Repository                | `Bharathreddyd3297/MavenGHATFProject`                                       |
 | GitHub Branch                    | `main`                                                                      |
 | AWS Region                       | `ap-south-1`                                                                |
-| AWS Account                      | `229378727493`                                                              |
+| AWS Account                      | `000000000000`                                                              |
 | OIDC Provider                    | `https://token.actions.githubusercontent.com`                               |
 | OIDC Audience                    | `sts.amazonaws.com`                                                         |
 | IAM Role                         | `GitHubLink`                                                                |
@@ -98,7 +98,7 @@ AWS Region:
 ap-south-1
 
 AWS Account ID:
-229378727493
+000000000000
 
 IAM Role:
 GitHubLink
@@ -334,7 +334,7 @@ Use the following trust policy:
     {
       "Effect": "Allow",
       "Principal": {
-        "Federated": "arn:aws:iam::229378727493:oidc-provider/token.actions.githubusercontent.com"
+        "Federated": "arn:aws:iam::000000000000:oidc-provider/token.actions.githubusercontent.com"
       },
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
@@ -360,7 +360,7 @@ The policy contains four important components.
 
 ```json
 "Principal": {
-  "Federated": "arn:aws:iam::229378727493:oidc-provider/token.actions.githubusercontent.com"
+  "Federated": "arn:aws:iam::000000000000:oidc-provider/token.actions.githubusercontent.com"
 }
 ```
 
@@ -431,7 +431,7 @@ copy the Role ARN.
 It will have the following format:
 
 ```text
-arn:aws:iam::229378727493:role/GitHubLink
+arn:aws:iam::000000000000:role/GitHubLink
 ```
 
 ---
@@ -470,7 +470,7 @@ AWS_ROLE_ARN
 For the value, enter the IAM role ARN:
 
 ```text
-arn:aws:iam::229378727493:role/GitHubLink
+arn:aws:iam::000000000000:role/GitHubLink
 ```
 
 Save the secret.
@@ -733,8 +733,8 @@ should return information similar to:
 ```json
 {
     "UserId": "AROATK2AJTZCUBR5TIVKO:GitHubLink",
-    "Account": "229378727493",
-    "Arn": "arn:aws:sts::229378727493:assumed-role/GitHubLink/GitHubLink"
+    "Account": "000000000000",
+    "Arn": "arn:aws:sts::000000000000:assumed-role/GitHubLink/GitHubLink"
 }
 ```
 
@@ -744,7 +744,7 @@ The important values are:
 
 ```text
 Account:
-229378727493
+000000000000
 ```
 
 and:
@@ -813,7 +813,7 @@ IAM Role:
 GitHubLink
 
 AWS Account:
-229378727493
+000000000000
 
 AWS Region:
 ap-south-1
@@ -879,7 +879,7 @@ The completed setup is:
                             |
                             ↓
                        AWS Account
-                      229378727493
+                      000000000000
                             |
                    Temporary Credentials
                             |
